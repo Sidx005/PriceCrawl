@@ -39,7 +39,7 @@ export async function POST(req){
                     results.failed++;
                     continue;
                 }
-                const newPrice=parseFloat(res.currentPrice)-4;
+                const newPrice=parseFloat(res.currentPrice);
                 const oldPrice=parseFloat(product.current_price);
                 (await supabase).from("products").update({
                 current_price: newPrice,
@@ -49,16 +49,21 @@ export async function POST(req){
             updated_at: new Date().toISOString(),
                 }).eq('id',product.id);
                 if(newPrice!==oldPrice){
-                    (await supabase).from('price_history').insert({
+                 const{error:historyError}=   await supabase.from('price_history').insert({
                         product_id:product.id,
                         price:newPrice,
                         currency:res.currencyCode||product.currency
                     })
+                    if (historyError) {
+  console.error("price_history insert failed:", historyError);
+  results.failed++;
+  continue;
+}
                     results.priceChanges++;
 
                     if(newPrice<oldPrice){
                         //Send alert to user
-                        const{data:user}=(await supabase).auth.admin.getUserById(product.user_id);
+                        const{data:user}=await supabase.auth.admin.getUserById(product.user_id);
                         if(user?.email){
                             //Send email
                             const emailRes=await sendPriceDropAlert(
