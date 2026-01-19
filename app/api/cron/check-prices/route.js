@@ -1,6 +1,6 @@
 import { sendPriceDropAlert } from "@/lib/email";
 import { scrapeProduct } from "@/lib/firecrawl";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
 export async  function GET(){
@@ -18,7 +18,7 @@ export async function POST(req){
             return NextResponse.json({error:"Unauthorized"},{status:401});
         }
 
-        const supabase=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY)
+        const supabase=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY)
 
         const {data:products,error:productsError}=await supabase.from("products").select('*');
         if(productsError) throw productsError;
@@ -43,9 +43,9 @@ export async function POST(req){
                 const oldPrice=parseFloat(product.current_price);
                 (await supabase).from("products").update({
                 current_price: newPrice,
-            currency: productData.currencyCode || product.currency,
-            name: productData.productName || product.name,
-            image_url: productData.productImageUrl || product.image_url,
+            currency: res.currencyCode || product.currency,
+            name: res.productName || product.name,
+            image_url: res.productImageUrl || product.image_url,
             updated_at: new Date().toISOString(),
                 })
                 if(newPrice!==oldPrice){
