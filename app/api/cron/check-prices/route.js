@@ -47,7 +47,7 @@ export async function POST(req){
             name: res.productName || product.name,
             image_url: res.productImageUrl || product.image_url,
             updated_at: new Date().toISOString(),
-                })
+                }).eq('id',product.id);
                 if(newPrice!==oldPrice){
                     (await supabase).from('price_history').insert({
                         product_id:product.id,
