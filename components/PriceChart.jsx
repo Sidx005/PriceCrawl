@@ -6,20 +6,19 @@ import { toast } from 'sonner';
 
 const PriceChart = ({productId}) => {
   const [data,setData]=useState([]);
+    const [loading, setLoading] = useState(true);
+
   useEffect(()=>{
    const fetchData=async()=>{
     try {
       const res=await getPriceHistory(productId);
-      if(res.error){
-        setData([]);
-        // toast.error(res.error);
-        return;
-      }else{
-        console.log("Price history data:", res);
-        // setData([10000,20000,15000,30000,25000,40000,35000].map((price,index)=>({date:`Day ${index+1}`,price})));
-        // setData(res.data||[]);
-      }
-
+     const chartData=res.map(item=>({
+      date:new Date(item.checked_at).toLocaleDateString(),
+      price:parseFloat(item.price)
+     }))
+      setData(chartData);
+      setLoading(false);
+      
     } catch (error) {
       console.error("Error fetching price history:", error);
       toast.error("Failed to fetch price history");

@@ -75,6 +75,7 @@ export async function POST(req){
                             if(emailRes.success){
                                 results.alertSent++;
                             }
+                            console.log("Email result:", emailRes);
                     }
                 }
 results.updated++;
