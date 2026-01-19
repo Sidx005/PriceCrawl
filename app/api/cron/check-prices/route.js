@@ -14,10 +14,8 @@ export async function POST(req){
     try {
         const authHeader=req.headers.get("authorization");
         const cronSecret=process.env.CRON_SECRET
-        if(authHeader!==`Bearer:${cronSecret}`||!cronSecret){
+        if(authHeader!==`Bearer ${cronSecret}`||!cronSecret){
             return NextResponse.json({error:"Unauthorized"},{status:401});
-
-
         }
 
         const supabase=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY)
